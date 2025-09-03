@@ -45,14 +45,14 @@ export default function Home() {
       },
   });
 
-if(session){
-  return(
-    <div className="flex flex-col p-4 gap-y-4">
-      <p>Logged in as {session.user.name}</p>
-      <Button onClick={() =>authClient.signOut()}>Sign Out</Button>
-    </div>
-  )
-}
+  if(session){
+    return(
+      <div className="flex flex-col p-4 gap-y-4">
+        <p>Logged in as {session.user.name}</p>
+        <Button onClick={() =>authClient.signOut()}>Sign Out</Button>
+      </div>
+    )
+  }
 
 
   return (

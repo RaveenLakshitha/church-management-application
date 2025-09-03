@@ -8,19 +8,45 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id            String    @id
-  email         String    @unique
-  name          String?
-  emailVerified Boolean
-  image         String?
-  createdAt     DateTime
-  updatedAt     DateTime
-  sessions      Session[]
-  accounts      Account[]
+enum Role {
+  CHURCH_OWNER
+  CHURCH_ADMIN
+  SUBACCOUNT_USER
+  SUBACCOUNT_GUEST
+}
 
+model User {
+  id            String         @id @default(uuid())
+  name          String
+  avatarUrl     String         @db.Text
+  email         String         @unique
+  emailVerified Boolean        @default(false)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  role          Role           @default(SUBACCOUNT_USER)
+  churchId      String?
+  church        Church?        @relation(fields: [churchId], references: [id], onDelete: Cascade)
+  permissions   Permissions[]
+  notifications Notification[]
+  sessions       Session[]
+  accounts      Account[]
+  
+  @@index([churchId])
   @@map("user")
 }
+
+model Permissions {
+  id            String      @id @default(uuid())
+  email         String
+  user          User        @relation(fields: [email], references: [email], onDelete: Cascade)
+  subAccountId  String
+  subAccount    SubAccount  @relation(fields: [subAccountId], references: [id], onDelete: Cascade)
+  access        Boolean
+  
+  @@index([subAccountId])
+  @@index([email])
+}
+
 
 model Session {
   id        String   @id
@@ -65,4 +91,158 @@ model Verification {
   updatedAt  DateTime?
 
   @@map("verification")
+}
+
+model Church {
+  id                  String              @id @default(uuid())
+  connectAccountId    String?
+  customerId          String              @default("")
+  name                String              @default("")
+  churchLogo          String              @db.Text
+  companyEmail        String              @db.Text
+  companyPhone        String
+  whitelabel          Boolean             @default(true)
+  address             String
+  city                String
+  zipCode             String
+  state               String
+  country             String
+  goal                Int                 @default(5)
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
+  users               User[]              @relation
+  sidebarOptions      ChurchSidebarOption[]
+  subAccounts         SubAccount[]
+  invitations         Invitation[]
+  notifications       Notification[]
+  subscription        Subscription?
+  addOns              AddOns[]
+  
+  @@map("church")
+}
+
+model SubAccount {
+  id                String                  @id @default(uuid())
+  name              String                  @default("")
+  connectAccountId  String?
+  subAccountLogo    String                  @db.Text
+  companyEmail      String                  @db.Text
+  companyPhone      String
+  address           String
+  city              String
+  zipCode           String
+  state             String
+  country           String
+  goal              Int                     @default(5)
+  createdAt         DateTime                @default(now())
+  updatedAt         DateTime                @updatedAt
+  churchId          String
+  church            Church                  @relation(fields: [churchId], references: [id], onDelete: Cascade)
+  sidebarOptions    SubAccountSidebarOption[]
+  permissions       Permissions[]
+  // media             Media[]
+  // contacts          Contact[]
+  notifications     Notification[]
+  
+  @@index([churchId])
+}
+
+model ChurchSidebarOption {
+  id        String     @id @default(uuid())
+  name      String     @default("Menu")
+  link      String     @default("#")
+  //icon      Icon       @default(info)
+  churchId  String
+  church    Church?    @relation(fields: [churchId], references: [id], onDelete: Cascade)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  
+  @@index([churchId])
+  @@map("church_sidebar_option")
+}
+
+model SubAccountSidebarOption {
+  id            String         @id @default(uuid())
+  name          String         @default("Menu")
+  link          String         @default("#")
+  //icon          Icon           @default(info)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  subAccount    SubAccount?    @relation(fields: [subAccountId], references: [id], onDelete: Cascade)
+  subAccountId  String?
+  
+  @@index([subAccountId])
+}
+
+enum InvitationStatus {
+  ACCEPTED
+  REVOKED
+  PENDING
+}
+
+model Invitation {
+  id        String           @id @default(uuid())
+  email     String           @unique
+  churchId  String
+  church    Church           @relation(fields: [churchId], references: [id], onDelete: Cascade)
+  status    InvitationStatus @default(PENDING)
+  role      Role             @default(SUBACCOUNT_USER)
+  
+  @@index([churchId])
+  @@map("invitation")
+}
+
+model Notification {
+  id            String        @id @default(uuid())
+  notification  String
+  churchId      String
+  userId        String
+  subAccountId  String?
+  church        Church        @relation(fields: [churchId], references: [id], onDelete: Cascade)
+  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  subAccount    SubAccount?   @relation(fields: [subAccountId], references: [id], onDelete: Cascade)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  
+  @@index([churchId])
+  @@index([subAccountId])
+  @@index([userId])
+  @@map("notification")
+}
+
+enum Plan {
+  price_10MhuQIld5Bk5htqogZXP2e
+  price_10MhtcIldSBk5htqx5CvFSmj
+}
+
+model Subscription {
+  id               String     @id @default(uuid())
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
+  plan             Plan?
+  price            String?
+  active           Boolean    @default(false)
+  priceId          String
+  customerId       String
+  currentPeriodEnd DateTime
+  subscriptionId   String     @unique
+  churchId         String?    @unique
+  church           Church?    @relation(fields: [churchId], references: [id])
+  
+  @@index([customerId])
+  @@map("subscription")
+}
+
+model AddOns {
+  id        String     @id @default(uuid())
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  name      String
+  active    Boolean    @default(false)
+  priceId   String     @unique
+  churchId  String?
+  church    Church?    @relation(fields: [churchId], references: [id])
+  
+  @@index([churchId])
+  @@map("add_ons")
 }
