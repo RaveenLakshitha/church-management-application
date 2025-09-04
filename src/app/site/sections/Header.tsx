@@ -1,5 +1,5 @@
 import ArrowRight from "@/assets/arrow-right.svg";
-import Logo from "@/assets/logo2.png";
+import Logo from "@/assets/logo3.png";
 import Image from "next/image";
 import MenuIcon from "@/assets/menu.svg";
 

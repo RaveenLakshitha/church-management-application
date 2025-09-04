@@ -1,21 +1,15 @@
 "use client";
 
-import { GitHubIcon } from "@/components/icons/GitHubIcon";
 import { GoogleIcon } from "@/components/icons/GoogleIcon";
 import { LoadingButton } from "@/components/loading-button";
 import { PasswordInput } from "@/components/password-input";
-import Logo from "@/assets/logo3.png";
+import Logo from "../../../../assets/logo3.png";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
 } from "@/components/ui/card";
-import { Checkbox } from "@/components/ui/checkbox";
 import {
   Form,
   FormControl,
@@ -42,7 +36,7 @@ const signInSchema = z.object({
   rememberMe: z.boolean().optional(),
 });
 
-export function SignInForm() {
+export const SignInForm = () => {
   const router = useRouter();
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -59,10 +53,11 @@ export function SignInForm() {
     setError(null);
     setPending(true);
 
-    const {error} = authClient.signIn.email(
+    authClient.signIn.email(
       {
         email:data.email,
         password:data.password,
+        callbackURL:"/",
       },
       {
         onSuccess: () => {
@@ -77,7 +72,31 @@ export function SignInForm() {
     );
   }
 
+  const onSocial = (provider: "google") => {
+      setError(null);
+      setPending(true);
+  
+      authClient.signIn.social(
+        {
+          provider: provider,
+          callbackURL:"/"
+        },
+        {
+          onSuccess: () => {
+            setPending(false);
+          },
+          onError: ({error}) => {
+            setError(error.message)
+            setPending(false);
+          }
+        }
+      );
+    }
+
   return (
+    
+    <div className="bg-muted flex min-h-svh flex-col items-center justify-center p-6 md:p-10">
+      <div className="w-full max-w-sm md:max-w-3xl">
     <div className="flex flex-col gap-6">
         <Card className="overflow-hidden p-0">
           <CardContent className="grid p-0 md:grid-cols-2">
@@ -124,11 +143,14 @@ export function SignInForm() {
                       Or continue with
                     </span>
                   </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <Button disabled={pending} className="w-full" variant="outline" type="button">Google</Button>
-                    <Button disabled={pending} className="w-full" variant="outline" type="button">Github</Button>
+                  <div className="grid gap-4">
+                    <Button disabled={pending} className="w-full" variant="outline" type="button"
+                    onClick={()=>{
+                      onSocial("google")
+                    }}
+                    ><GoogleIcon width="0.98em" height="1em" />Google</Button>
                   </div>
-                  <div className="text-center text-sm">Don&apos;t have an account?{" "} <Link href="/church/sign-up" className="underline underline-offset-4">Sign up</Link></div>
+                  <div className="text-center text-sm">Don&apos;t have an account?{" "} <Link href="/sign-up" className="underline underline-offset-4">Sign up</Link></div>
                 </div>
               </form>
             </Form>
@@ -145,6 +167,8 @@ export function SignInForm() {
         By clicking continue, you agree to our <a href="#">Terms of Service</a> and{" "}
         <a href="#">Privacy Policy</a>
       </div>
+    </div>
+    </div>
     </div>
   );
 }

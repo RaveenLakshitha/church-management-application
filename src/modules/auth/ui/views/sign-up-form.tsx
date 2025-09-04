@@ -1,19 +1,14 @@
 "use client";
 
-import { GitHubIcon } from "@/components/icons/GitHubIcon";
 import { GoogleIcon } from "@/components/icons/GoogleIcon";
 import { LoadingButton } from "@/components/loading-button";
 import { PasswordInput } from "@/components/password-input";
-import Logo from "@/assets/logo3.png";
+import Logo from "../../../../assets/logo3.png";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
 } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -28,13 +23,13 @@ import { Input } from "@/components/ui/input";
 import { authClient } from "@/lib/auth-client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 import { Alert, AlertTitle } from "@/components/ui/alert";
 import { OctagonAlertIcon } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 const signUpSchema = z.object({
   name:z.string().min(1, {message: "Name is required"}),
@@ -46,10 +41,10 @@ const signUpSchema = z.object({
     path:["confirmPassword"],
 })
 
-export function SignUpForm() {
-  const router = useRouter();
+export const SignUpForm = () => {
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
 
   const form = useForm<z.infer<typeof signUpSchema>>({
     resolver:zodResolver(signUpSchema),
@@ -65,11 +60,12 @@ export function SignUpForm() {
     setError(null);
     setPending(true);
 
-    const {error} = authClient.signUp.email(
+    authClient.signUp.email(
       {
         name:data.name,
         email:data.email,
         password:data.password,
+        callbackURL:"/",
       },
       {
         onSuccess: () => {
@@ -84,7 +80,31 @@ export function SignUpForm() {
     );
   }
 
+  const onSocial = (provider: "google") => {
+    setError(null);
+    setPending(true);
+
+    authClient.signIn.social(
+      {
+        provider: provider,
+        callbackURL:"/"
+      },
+      {
+        onSuccess: () => {
+          setPending(false);
+        },
+        onError: ({error}) => {
+          setError(error.message)
+          setPending(false);
+        }
+      }
+    );
+  }
+
   return (
+    
+    <div className="bg-muted flex min-h-svh flex-col items-center justify-center p-6 md:p-10">
+      <div className="w-full max-w-sm md:max-w-3xl">
     <div className="flex flex-col gap-6">
         <Card className="overflow-hidden p-0">
           <CardContent className="grid p-0 md:grid-cols-2">
@@ -153,11 +173,14 @@ export function SignUpForm() {
                       Or continue with
                     </span>
                   </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <Button disabled={pending} className="w-full" variant="outline" type="button">Google</Button>
-                    <Button disabled={pending} className="w-full" variant="outline" type="button">Github</Button>
+                  <div className="grid gap-4">
+                    <Button disabled={pending} className="w-full" variant="outline" type="button"
+                    onClick={()=>{
+                      onSocial("google")
+                    }}
+                    ><GoogleIcon width="0.98em" height="1em" />Google</Button>
                   </div>
-                  <div className="text-center text-sm">Already have an account?{" "} <Link href="/church/sign-in" className="underline underline-offset-4">Sign in</Link></div>
+                  <div className="text-center text-sm">Already have an account?{" "} <Link href="/sign-in" className="underline underline-offset-4">Sign in</Link></div>
                 </div>
               </form>
             </Form>
@@ -174,6 +197,8 @@ export function SignUpForm() {
         By clicking continue, you agree to our <a href="#">Terms of Service</a> and{" "}
         <a href="#">Privacy Policy</a>
       </div>
+    </div>
+    </div>
     </div>
   );
 }
