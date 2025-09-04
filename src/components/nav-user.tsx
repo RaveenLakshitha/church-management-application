@@ -29,6 +29,8 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar"
+import { authClient } from "@/lib/auth-client"
+import { useRouter } from "next/navigation"
 
 export function NavUser({
   user,
@@ -36,10 +38,24 @@ export function NavUser({
   user: {
     name: string
     email: string
-    avatar: string
+    id: string
+    emailVerified: boolean
+    createdAt: Date
+    updatedAt: Date
+    image?: string | null | undefined
   }
 }) {
   const { isMobile } = useSidebar()
+  const router = useRouter();
+  const onLogout = async () => {
+    await authClient.signOut({
+      fetchOptions:{
+        onSuccess:()=>{
+          router.push("/sign-in");
+        }
+      }
+    })
+  }
 
   return (
     <SidebarMenu>
@@ -50,10 +66,12 @@ export function NavUser({
               size="lg"
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
             >
+              {user.image ? 
               <Avatar className="h-8 w-8 rounded-lg">
-                <AvatarImage src={user.avatar} alt={user.name} />
+                <AvatarImage src={user.image ?? undefined} alt={user.name} />
                 <AvatarFallback className="rounded-lg">CN</AvatarFallback>
-              </Avatar>
+              </Avatar> : null
+            }
               <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="truncate font-medium">{user.name}</span>
                 <span className="truncate text-xs">{user.email}</span>
@@ -70,7 +88,7 @@ export function NavUser({
             <DropdownMenuLabel className="p-0 font-normal">
               <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                 <Avatar className="h-8 w-8 rounded-lg">
-                  <AvatarImage src={user.avatar} alt={user.name} />
+                  <AvatarImage src={user.image ?? undefined} alt={user.name} />
                   <AvatarFallback className="rounded-lg">CN</AvatarFallback>
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">
@@ -102,7 +120,7 @@ export function NavUser({
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
+            <DropdownMenuItem onClick={onLogout}>
               <LogOut />
               Log out
             </DropdownMenuItem>
