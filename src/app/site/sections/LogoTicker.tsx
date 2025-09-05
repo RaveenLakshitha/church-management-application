@@ -1,10 +1,5 @@
 "use client";
-import acmeLogo from "@/assets/logo-acme.png";
-import quantumLogo from "@/assets/logo-quantum.png";
-import echoLogo from "@/assets/logo-echo.png";
-import celestialLogo from "@/assets/logo-celestial.png";
-import pulseLogo from "@/assets/logo-pulse.png";
-import apexLogo from "@/assets/logo-apex.png";
+
 import Image from "next/image";
 import { motion } from "framer-motion";
 
@@ -24,19 +19,119 @@ export const LogoTicker = () => {
               repeatType: "loop",
             }}
           >
-            <Image src={acmeLogo} alt="Acme Logo" className="logo-ticker-image" />
-            <Image src={quantumLogo} alt="Quantum Logo" className="logo-ticker-image" />
-            <Image src={echoLogo} alt="Echo Logo" className="logo-ticker-image" />
-            <Image src={celestialLogo} alt="Celestial Logo" className="logo-ticker-image" />
-            <Image src={pulseLogo} alt="Pulse Logo" className="logo-ticker-image" />
-            <Image src={apexLogo} alt="Apex Logo" className="logo-ticker-image" />
+            <Image
+              className="logo-ticker-image h-7 w-auto dark:invert"
+              src="https://html.tailus.io/blocks/customers/nvidia.svg"
+              alt="Nvidia Logo"
+              height={28}
+              width={0}
+            />
+            <Image
+              className="logo-ticker-image h-6 w-auto dark:invert"
+              src="https://html.tailus.io/blocks/customers/column.svg"
+              alt="Column Logo"
+              height={24}
+              width={0}
+            />
+            <Image
+              className="logo-ticker-image h-6 w-auto dark:invert"
+              src="https://html.tailus.io/blocks/customers/github.svg"
+              alt="GitHub Logo"
+              height={24}
+              width={0}
+            />
+            <Image
+              className="logo-ticker-image h-7 w-auto dark:invert"
+              src="https://html.tailus.io/blocks/customers/nike.svg"
+              alt="Nike Logo"
+              height={28}
+              width={0}
+            />
+            <Image
+              className="logo-ticker-image h-7 w-auto dark:invert"
+              src="https://html.tailus.io/blocks/customers/lemonsqueezy.svg"
+              alt="Lemon Squeezy Logo"
+              height={28}
+              width={0}
+            />
+            <Image
+              className="logo-ticker-image h-6 w-auto dark:invert"
+              src="https://html.tailus.io/blocks/customers/laravel.svg"
+              alt="Laravel Logo"
+              height={24}
+              width={0}
+            />
+            <Image
+              className="logo-ticker-image h-10 w-auto dark:invert"
+              src="https://html.tailus.io/blocks/customers/lilly.svg"
+              alt="Lilly Logo"
+              height={40}
+              width={0}
+            />
+            <Image
+              className="logo-ticker-image h-9 w-auto dark:invert"
+              src="https://html.tailus.io/blocks/customers/openai.svg"
+              alt="OpenAI Logo"
+              height={36}
+              width={0}
+            />
             {/* Second set of Images for seamless looping */}
-            <Image src={acmeLogo} alt="Acme Logo" className="logo-ticker-image" />
-            <Image src={quantumLogo} alt="Quantum Logo" className="logo-ticker-image" />
-            <Image src={echoLogo} alt="Echo Logo" className="logo-ticker-image" />
-            <Image src={celestialLogo} alt="Celestial Logo" className="logo-ticker-image" />
-            <Image src={pulseLogo} alt="Pulse Logo" className="logo-ticker-image" />
-            <Image src={apexLogo} alt="Apex Logo" className="logo-ticker-image" />
+            <Image
+              className="logo-ticker-image h-7 w-auto dark:invert"
+              src="https://html.tailus.io/blocks/customers/nvidia.svg"
+              alt="Nvidia Logo"
+              height={28}
+              width={0}
+            />
+            <Image
+              className="logo-ticker-image h-6 w-auto dark:invert"
+              src="https://html.tailus.io/blocks/customers/column.svg"
+              alt="Column Logo"
+              height={24}
+              width={0}
+            />
+            <Image
+              className="logo-ticker-image h-6 w-auto dark:invert"
+              src="https://html.tailus.io/blocks/customers/github.svg"
+              alt="GitHub Logo"
+              height={24}
+              width={0}
+            />
+            <Image
+              className="logo-ticker-image h-7 w-auto dark:invert"
+              src="https://html.tailus.io/blocks/customers/nike.svg"
+              alt="Nike Logo"
+              height={28}
+              width={0}
+            />
+            <Image
+              className="logo-ticker-image h-7 w-auto dark:invert"
+              src="https://html.tailus.io/blocks/customers/lemonsqueezy.svg"
+              alt="Lemon Squeezy Logo"
+              height={28}
+              width={0}
+            />
+            <Image
+              className="logo-ticker-image h-6 w-auto dark:invert"
+              src="https://html.tailus.io/blocks/customers/laravel.svg"
+              alt="Laravel Logo"
+              height={24}
+              width={0}
+            />
+            <Image
+              className="logo-ticker-image h-10 w-auto dark:invert"
+              src="https://html.tailus.io/blocks/customers/lilly.svg"
+              alt="Lilly Logo"
+              height={40}
+              width={0}
+            />
+            <Image
+              className="logo-ticker-image h-9 w-auto dark:invert"
+              src="https://html.tailus.io/blocks/customers/openai.svg"
+              alt="OpenAI Logo"
+              height={36}
+              width={0}
+            />
           </motion.div>
         </div>
       </div>
