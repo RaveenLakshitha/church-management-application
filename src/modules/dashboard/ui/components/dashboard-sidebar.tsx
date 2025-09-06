@@ -3,6 +3,7 @@
 import { ChevronRight, StarIcon } from "lucide-react"
 import PeopleIcon from '@mui/icons-material/People';
 import VolunteerActivismIcon from '@mui/icons-material/VolunteerActivism';
+import CardMembershipIcon from '@mui/icons-material/CardMembership';
 import {
   Sidebar,
   SidebarContent,
@@ -48,6 +49,15 @@ const firstSection = [
       // Example sub-items for collapsible
       { title: "All Members", url: "/members/all" },
       { title: "Active Members", url: "/members/active" },
+    ],
+  },
+  {
+    icon: CardMembershipIcon,
+    label: "Memberships", // Changed 'lable' to 'label' for consistency
+    href: "/memberships",
+    items: [
+      // Example sub-items for collapsible
+      { title: "All Memberships", url: "/memberships/all" },
     ],
   },
   {

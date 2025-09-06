@@ -16,7 +16,6 @@ import {
 import { ModeToggle } from "@/components/mode-toggle";
 import { DashboardNavbar } from "@/components/dashboard-navbar";
 
-
 interface Props {
     children: React.ReactNode;
 }
