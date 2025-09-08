@@ -1,26 +1,18 @@
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { DashboardSidebar } from "@/modules/dashboard/ui/components/dashboard-sidebar";
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb"
-import { Separator } from "@/components/ui/separator"
-import {
-  SidebarInset,
-  SidebarTrigger,
-} from "@/components/ui/sidebar"
-import { ModeToggle } from "@/components/mode-toggle";
 import { DashboardNavbar } from "@/components/dashboard-navbar";
+import { ChurchSetupForm } from "@/modules/church/ui/components/church-setup-form";
 
 interface Props {
     children: React.ReactNode;
 }
 
 const Layout = ({children} : Props) => {
+  //   var t = true;
+  //   if (t) {
+  //   return <ChurchSetupForm />;
+  // }
+
     return(
     <SidebarProvider>
         <DashboardSidebar />
