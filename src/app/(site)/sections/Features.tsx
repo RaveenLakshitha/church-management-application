@@ -98,8 +98,23 @@ export const Features = () => {
   ];
 
   return (
-    <section className="py-12 md:py-20 lg:py-32 bg-gray-50">
-      <div className="mx-auto max-w-5xl space-y-8 px-6 md:space-y-16 lg:space-y-20">
+    <section id="features" className="py-12 md:py-20 lg:py-32 bg-gradient-to-br from-sky-50 via-blue-50 to-indigo-100 relative overflow-hidden">
+      <div className="absolute inset-x-0 bottom-0 h-24 pointer-events-none">
+        <svg
+          className="absolute right-0 w-full h-full"
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 100 24"
+          fill="none"
+          preserveAspectRatio="none"
+        >
+          <path
+            d="M0 24L100 0L100 24H0Z"
+            fill="white"
+            opacity="0.8"
+          />
+        </svg>
+      </div>
+      <div className="mx-auto max-w-5xl space-y-8 px-6 md:space-y-16 lg:space-y-20 relative z-10">
         {/* Header */}
         <div className="relative z-10 mx-auto max-w-2xl space-y-6 text-center">
           <h2 className="text-balance text-4xl font-semibold lg:text-6xl text-gray-800">
@@ -137,7 +152,6 @@ export const Features = () => {
                 ease: "easeOut",
               }}
               className="group relative"
-              onMouseEnter={() => setHoveredIndex(index)}
               onMouseLeave={() => setHoveredIndex(null)}
             >
               <div

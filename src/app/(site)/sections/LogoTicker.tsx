@@ -20,56 +20,56 @@ export const LogoTicker = () => {
             }}
           >
             <Image
-              className="logo-ticker-image h-7 w-auto dark:invert"
+              className="logo-ticker-image h-7 w-auto "
               src="https://html.tailus.io/blocks/customers/nvidia.svg"
               alt="Nvidia Logo"
               height={28}
               width={0}
             />
             <Image
-              className="logo-ticker-image h-6 w-auto dark:invert"
+              className="logo-ticker-image h-6 w-auto "
               src="https://html.tailus.io/blocks/customers/column.svg"
               alt="Column Logo"
               height={24}
               width={0}
             />
             <Image
-              className="logo-ticker-image h-6 w-auto dark:invert"
+              className="logo-ticker-image h-6 w-auto "
               src="https://html.tailus.io/blocks/customers/github.svg"
               alt="GitHub Logo"
               height={24}
               width={0}
             />
             <Image
-              className="logo-ticker-image h-7 w-auto dark:invert"
+              className="logo-ticker-image h-7 w-auto "
               src="https://html.tailus.io/blocks/customers/nike.svg"
               alt="Nike Logo"
               height={28}
               width={0}
             />
             <Image
-              className="logo-ticker-image h-7 w-auto dark:invert"
+              className="logo-ticker-image h-7 w-auto "
               src="https://html.tailus.io/blocks/customers/lemonsqueezy.svg"
               alt="Lemon Squeezy Logo"
               height={28}
               width={0}
             />
             <Image
-              className="logo-ticker-image h-6 w-auto dark:invert"
+              className="logo-ticker-image h-6 w-auto "
               src="https://html.tailus.io/blocks/customers/laravel.svg"
               alt="Laravel Logo"
               height={24}
               width={0}
             />
             <Image
-              className="logo-ticker-image h-10 w-auto dark:invert"
+              className="logo-ticker-image h-10 w-auto "
               src="https://html.tailus.io/blocks/customers/lilly.svg"
               alt="Lilly Logo"
               height={40}
               width={0}
             />
             <Image
-              className="logo-ticker-image h-9 w-auto dark:invert"
+              className="logo-ticker-image h-9 w-auto "
               src="https://html.tailus.io/blocks/customers/openai.svg"
               alt="OpenAI Logo"
               height={36}
@@ -77,56 +77,56 @@ export const LogoTicker = () => {
             />
             {/* Second set of Images for seamless looping */}
             <Image
-              className="logo-ticker-image h-7 w-auto dark:invert"
+              className="logo-ticker-image h-7 w-auto "
               src="https://html.tailus.io/blocks/customers/nvidia.svg"
               alt="Nvidia Logo"
               height={28}
               width={0}
             />
             <Image
-              className="logo-ticker-image h-6 w-auto dark:invert"
+              className="logo-ticker-image h-6 w-auto "
               src="https://html.tailus.io/blocks/customers/column.svg"
               alt="Column Logo"
               height={24}
               width={0}
             />
             <Image
-              className="logo-ticker-image h-6 w-auto dark:invert"
+              className="logo-ticker-image h-6 w-auto "
               src="https://html.tailus.io/blocks/customers/github.svg"
               alt="GitHub Logo"
               height={24}
               width={0}
             />
             <Image
-              className="logo-ticker-image h-7 w-auto dark:invert"
+              className="logo-ticker-image h-7 w-auto "
               src="https://html.tailus.io/blocks/customers/nike.svg"
               alt="Nike Logo"
               height={28}
               width={0}
             />
             <Image
-              className="logo-ticker-image h-7 w-auto dark:invert"
+              className="logo-ticker-image h-7 w-auto "
               src="https://html.tailus.io/blocks/customers/lemonsqueezy.svg"
               alt="Lemon Squeezy Logo"
               height={28}
               width={0}
             />
             <Image
-              className="logo-ticker-image h-6 w-auto dark:invert"
+              className="logo-ticker-image h-6 w-auto "
               src="https://html.tailus.io/blocks/customers/laravel.svg"
               alt="Laravel Logo"
               height={24}
               width={0}
             />
             <Image
-              className="logo-ticker-image h-10 w-auto dark:invert"
+              className="logo-ticker-image h-10 w-auto "
               src="https://html.tailus.io/blocks/customers/lilly.svg"
               alt="Lilly Logo"
               height={40}
               width={0}
             />
             <Image
-              className="logo-ticker-image h-9 w-auto dark:invert"
+              className="logo-ticker-image h-9 w-auto "
               src="https://html.tailus.io/blocks/customers/openai.svg"
               alt="OpenAI Logo"
               height={36}

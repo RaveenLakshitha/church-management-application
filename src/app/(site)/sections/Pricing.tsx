@@ -4,11 +4,23 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Check, Star, Zap, Crown } from "lucide-react";
-import { motion } from "framer-motion";
+import { motion, useScroll, useTransform, Variants } from "framer-motion";
 import { useState } from "react";
 
 export const Pricing = () => {
+  const { scrollYProgress } = useScroll();
   const [hoveredIndex, setHoveredIndex] = useState(null);
+
+  // Updated background color transformation on scroll to dawn sky theme
+  const bgColor = useTransform(
+    scrollYProgress,
+    [0, 0.5, 1],
+    [
+      "linear-gradient(135deg, #d7e8fd 0%, #f9e4d4 100%)",
+      "linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%)",
+      "linear-gradient(135deg, #ffffff 0%, #eff6ff 100%)"
+    ]
+  );
 
   const packages = [
     {
@@ -61,8 +73,30 @@ export const Pricing = () => {
   ];
 
   return (
-    <section className="py-16 md:py-32 bg-gray-50">
-      <div className="mx-auto max-w-6xl px-6">
+    <section id="pricing" className="relative pt-8 pb-20 md:pt-5 md:pb-10 overflow-hidden">
+      {/* Animated Background with Dawn Sky Colors on Scroll */}
+      <motion.div 
+        className="absolute inset-0 bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100"
+        style={{ backgroundImage: bgColor }}
+        transition={{ duration: 1, ease: "easeOut" }}
+      />
+      {/* Animated Grid Pattern - Very subtle */}
+      <motion.div
+        className="absolute inset-0 opacity-2"
+        style={{
+          backgroundImage: `
+            linear-gradient(rgba(0,0,0,0.02) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(0,0,0,0.02) 1px, transparent 1px)
+          `,
+          backgroundSize: '50px 50px',
+        }}
+        animate={{
+          backgroundPosition: ['0px 0px', '50px 50px', '0px 0px'],
+        }}
+        transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
+      />
+
+      <div className="relative z-10 w-full max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mx-auto max-w-2xl space-y-6 text-center mb-12">
           <div className="inline-flex items-center px-4 py-2 rounded-full bg-white border border-gray-200">
@@ -142,17 +176,7 @@ export const Pricing = () => {
             </motion.div>
           ))}
         </div>
-
-        {/* Bottom CTA */}
-        <div className="text-center mt-12">
-          <p className="text-gray-600 mb-4">Need a custom solution? We're here to help.</p>
-          <Button
-            variant="outline"
-            className="px-6 py-2 rounded-full text-gray-700 border-gray-300 hover:bg-gray-100"
-          >
-            Contact Sales
-          </Button>
-        </div>
+        <div className="border-b border-gray-200 mt-8 pt-4" />
       </div>
     </section>
   );

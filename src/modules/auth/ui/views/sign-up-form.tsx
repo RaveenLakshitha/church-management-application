@@ -103,7 +103,7 @@ export const SignUpForm = () => {
 
   return (
     
-    <div className="bg-muted flex min-h-svh flex-col items-center justify-center p-6 md:p-10">
+    <div className="bg-gradient-to-b from-white via-blue-50/30 to-blue-50/80 fixed inset-0 flex flex-col items-center justify-center p-6 md:p-10 overflow-hidden md:overflow-y-auto">
       <div className="w-full max-w-sm md:max-w-3xl">
     <div className="flex flex-col gap-6">
         <Card className="overflow-hidden p-0">
@@ -167,7 +167,7 @@ export const SignUpForm = () => {
                       <AlertTitle>{error}</AlertTitle>
                     </Alert>
                   )}
-                 <LoadingButton type="submit" loading={pending} disabled={pending} className="w-full">Sign in</LoadingButton>
+                 <LoadingButton type="submit" loading={pending} disabled={pending} className="w-full">Create account</LoadingButton>
                   <div className="relative text-center text-sm after:absolute after:inset-x-0 after:top-1/2 after:-translate-y-1/2 after:z-0 after:border-t after:border-border">
                     <span className="bg-card text-muted-foreground relative z-10 px-2">
                       Or continue with
@@ -188,7 +188,7 @@ export const SignUpForm = () => {
             <div className="bg-gradient-to-br from-teal-100 to-blue-100 relative hidden md:flex flex-col
             gap-y-4 items-center justify-center">
               <Image src={Logo} alt="saas logo" className="h-[92px] w-[92px]" />
-            <p>Church Managament</p>
+            <p>Church Management</p>
             </div>
           </CardContent>
         </Card>

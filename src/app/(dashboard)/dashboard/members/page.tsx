@@ -1,4 +1,5 @@
 
+import { MembersListHeader } from "@/modules/members/ui/components/members-list-header";
 import { MembersView, MembersviewError, MembersviewLoading } from "@/modules/members/ui/views/members-view";
 import { getQueryClient, trpc } from "@/trpc/server";
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
@@ -9,6 +10,8 @@ const Page = async() => {
     const queryClient = getQueryClient();
     void queryClient.prefetchQuery(trpc.members.getAll.queryOptions());
     return (
+        <>
+        <MembersListHeader />
         <HydrationBoundary state={dehydrate(queryClient)}>
             <Suspense fallback={<MembersviewLoading/>}>
                 <ErrorBoundary fallback={<MembersviewError />}>
@@ -16,6 +19,7 @@ const Page = async() => {
                 </ErrorBoundary>
             </Suspense>
         </HydrationBoundary>
+        </>
     );
 };
 
