@@ -127,10 +127,8 @@ export const FAQsAndContact = () => {
                         </Accordion>
 
                         <p className="text-gray-600 mt-6 px-8">
-                            Can't find what you're looking for? Contact our{' '}
-                            <Link
-                                href="#contact-form"
-                                className="text-blue-600 font-medium hover:underline">
+                            Can&apos;t find what you&apos;re looking for? Contact our{' '}
+                            <Link href="#contact-form" className="text-blue-600 font-medium hover:underline">
                                 support team
                             </Link>
                         </p>
