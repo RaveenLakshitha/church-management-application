@@ -1,20 +1,9 @@
-import { z } from 'zod';
+import { z } from "zod";
 
-// Define a custom type for JSON values to match Prisma's expectations
-const jsonSchema: z.ZodType<any> = z.union([
-  z.string(),
-  z.number(),
-  z.boolean(),
-  z.null(),
-  z.array(z.lazy(() => jsonSchema)),
-  z.record(z.string(), z.lazy(() => jsonSchema)),
-]).optional().nullable();
-
-// Input validation schema for Member
 export const memberCreateSchema = z.object({
   id: z.number().optional(),
   mobile_number: z.string().optional(),
-  member_id: z.string(),
+  member_id: z.string().min(1, "Member ID is required"),
   first_name: z.string().optional(),
   middle_name: z.string().optional(),
   last_name: z.string().optional(),
@@ -27,11 +16,9 @@ export const memberCreateSchema = z.object({
   city: z.string().optional(),
   state: z.string().optional(),
   zip_code: z.string().optional(),
-  membership_status: z.string().default('active'),
-  profile_photo: z.string().optional(),
-  member_tags: jsonSchema, // Matches Prisma's JSON expectations
+  membership_status: z.string(),
+  profile_photo: z.string().optional().transform((val) => (val === "" ? null : val)), 
   qr_code: z.string().optional(),
-  additional_info: jsonSchema, // Matches Prisma's JSON expectations
 });
 
 export const memberUpdateSchema = z.object({
@@ -51,8 +38,6 @@ export const memberUpdateSchema = z.object({
   state: z.string().optional(),
   zip_code: z.string().optional(),
   membership_status: z.string().optional(),
-  profile_photo: z.string().optional(),
-  member_tags: jsonSchema,
+  profile_photo: z.string().optional().transform((val) => (val === "" ? null : val)),
   qr_code: z.string().optional(),
-  additional_info: jsonSchema,
 });

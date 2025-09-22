@@ -19,8 +19,6 @@ export type Member = {
   id: number
   email: string | null
   state: string | null
-  member_tags: JsonValue
-  additional_info: JsonValue | null
   mobile_number: string | null
   member_id: string
   first_name: string | null

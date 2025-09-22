@@ -5,8 +5,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import z from "zod";
-import { memberCreateSchema } from "../../schemas";
+import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -16,13 +15,30 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
+import {
+  Form,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormMessage,
+  FormDescription,
+} from "@/components/ui/form";
 import { toast } from "sonner";
+import { Loader2, Paperclip } from "lucide-react";
+import { UploadDropzone } from "@uploadthing/react";
+import type { OurFileRouter } from "@/app/api/uploadthing/core";
+import { useState } from "react";
+import { memberCreateSchema, memberUpdateSchema } from "../../schemas";
+import { MemberGetOne } from "../../types";
+import { generateReactHelpers } from "@uploadthing/react";
+
+const { useUploadThing } = generateReactHelpers<OurFileRouter>();
 
 interface MemberFormProps {
   onSuccess?: () => void;
   onCancel?: () => void;
-  initialValues?: z.infer<typeof memberCreateSchema>;
+  initialValues?: MemberGetOne;
 }
 
 export const MemberForm = ({
@@ -34,19 +50,40 @@ export const MemberForm = ({
   const router = useRouter();
   const queryClient = useQueryClient();
 
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+
+  const { startUpload } = useUploadThing("profilePhoto", {
+    onClientUploadComplete: (res) => {
+      if (res && res.length > 0) {
+        const fileUrl = res[0].url || res[0].ufsUrl || "";
+        form.setValue("profile_photo", fileUrl);
+        setIsUploading(false);
+        setUploadProgress(100);
+        toast.success("Profile photo uploaded successfully!");
+      }
+    },
+    onUploadError: (error) => {
+      setIsUploading(false);
+      setUploadProgress(0);
+      setSelectedFile(null);
+      toast.error(`Upload failed: ${error.message}`);
+    },
+    onUploadProgress: (progress) => {
+      setUploadProgress(progress);
+    },
+  });
+
   const createMember = useMutation({
     ...trpc.members.create.mutationOptions({
       onSuccess: async () => {
         await queryClient.invalidateQueries(
-          trpc.members.getAll.queryOptions(),
+          trpc.members.getAll.queryOptions()
         );
-
-        if (initialValues?.id) {
-          await queryClient.invalidateQueries(
-            trpc.members.getById.queryOptions({ id: initialValues.id }),
-          );
-        }
         onSuccess?.();
+        toast.success("Member created successfully!");
+        router.push("/dashboard/members");
       },
       onError: (error) => {
         toast.error(error.message);
@@ -54,21 +91,96 @@ export const MemberForm = ({
     }),
   });
 
-  const form = useForm<z.infer<typeof memberCreateSchema>>({
-    resolver: zodResolver(memberCreateSchema) as any,
-    defaultValues: initialValues || {
-      membership_status: "active",
-    },
+  const updateMember = useMutation({
+    ...trpc.members.update.mutationOptions({
+      onSuccess: async () => {
+        await queryClient.invalidateQueries(
+          trpc.members.getAll.queryOptions()
+        );
+        if (initialValues?.id) {
+          await queryClient.invalidateQueries(
+            trpc.members.getById.queryOptions({ id: initialValues.id })
+          );
+        }
+        onSuccess?.();
+        toast.success("Member updated successfully!");
+      },
+      onError: (error) => {
+        toast.error(error.message);
+      },
+    }),
   });
 
-  const isEdit = !!initialValues?.member_id;
-  const isPending = createMember.isPending;
+  const isEdit = !!initialValues?.id;
+  const form = useForm<z.infer<typeof memberCreateSchema>>({
+    resolver: zodResolver(isEdit ? memberUpdateSchema : memberCreateSchema),
+    defaultValues: initialValues
+      ? {
+          id: initialValues.id,
+          member_id: initialValues.member_id || "",
+          first_name: initialValues.first_name || "",
+          middle_name: initialValues.middle_name || "",
+          last_name: initialValues.last_name || "",
+          email: initialValues.email || "",
+          mobile_number: initialValues.mobile_number || "",
+          gender: initialValues.gender || "",
+          birthday: initialValues.birthday || "",
+          profile_photo: initialValues.profile_photo || "",
+          address: initialValues.address || "",
+          address_line_1: initialValues.address_line_1 || "",
+          address_line_2: initialValues.address_line_2 || "",
+          city: initialValues.city || "",
+          state: initialValues.state || "",
+          zip_code: initialValues.zip_code || "",
+          membership_status: initialValues.membership_status || "active",
+          qr_code: initialValues.qr_code || "",
+        }
+      : {
+          membership_status: "active",
+          qr_code: "",
+          profile_photo: undefined, // Use undefined for new members
+        },
+  });
 
-  const onSubmit = (values: z.infer<typeof memberCreateSchema>) => {
+  const isPending = createMember.isPending || isUploading || updateMember.isPending;
+
+  const onSubmit = async (values: z.infer<typeof memberCreateSchema>) => {
     if (isEdit) {
-      console.log("TODO: UpdateMember");
+      if (selectedFile) {
+        setIsUploading(true);
+        try {
+          const res = await startUpload([selectedFile]);
+          if (res && res.length > 0) {
+            form.setValue("profile_photo", res[0].url || res[0].fileUrl || "");
+            await new Promise((resolve) => setTimeout(resolve, 100));
+          }
+        } catch (error) {
+          setIsUploading(false);
+          toast.error("Failed to upload profile photo");
+          return;
+        }
+      }
+      const updatedValues = form.getValues();
+      updateMember.mutate({ ...updatedValues, id: initialValues!.id });
     } else {
-      createMember.mutate(values);
+      if (selectedFile) {
+        setIsUploading(true);
+        try {
+          const res = await startUpload([selectedFile]);
+          if (res && res.length > 0) {
+            form.setValue("profile_photo", res[0].url || res[0].fileUrl || "");
+            await new Promise((resolve) => setTimeout(resolve, 100));
+          }
+        } catch (error) {
+          setIsUploading(false);
+          toast.error("Failed to upload profile photo");
+          return;
+        }
+      } else {
+        form.setValue("profile_photo", undefined); // Set to undefined if no photo
+      }
+      const updatedValues = form.getValues();
+      createMember.mutate(updatedValues);
     }
   };
 
@@ -82,36 +194,17 @@ export const MemberForm = ({
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <FormField
-                name="member_id"
                 control={form.control}
+                name="member_id"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="text-foreground">Member ID</FormLabel>
                     <FormControl>
-                      <Input {...field} placeholder="Enter member ID" className="bg-background text-foreground" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                name="membership_status"
-                control={form.control}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-foreground">Membership Status</FormLabel>
-                    <FormControl>
-                      <Select onValueChange={field.onChange} value={field.value}>
-                        <SelectTrigger className="bg-background text-foreground">
-                          <SelectValue placeholder="Select status" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="active">Active</SelectItem>
-                          <SelectItem value="inactive">Inactive</SelectItem>
-                          <SelectItem value="pending">Pending</SelectItem>
-                        </SelectContent>
-                      </Select>
+                      <Input
+                        {...field}
+                        placeholder="Enter member ID"
+                        className="bg-background text-foreground"
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -126,41 +219,53 @@ export const MemberForm = ({
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <FormField
-                name="first_name"
                 control={form.control}
+                name="first_name"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="text-foreground">First Name</FormLabel>
                     <FormControl>
-                      <Input {...field} placeholder="Enter first name" className="bg-background text-foreground" />
+                      <Input
+                        {...field}
+                        placeholder="Enter first name"
+                        className="bg-background text-foreground"
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-
               <FormField
-                name="middle_name"
                 control={form.control}
+                name="middle_name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-foreground">Middle Name</FormLabel>
+                    <FormLabel className="text-foreground">
+                      Middle Name
+                    </FormLabel>
                     <FormControl>
-                      <Input {...field} placeholder="Enter middle name" className="bg-background text-foreground" />
+                      <Input
+                        {...field}
+                        placeholder="Enter middle name"
+                        className="bg-background text-foreground"
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-
               <FormField
-                name="last_name"
                 control={form.control}
+                name="last_name"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="text-foreground">Last Name</FormLabel>
                     <FormControl>
-                      <Input {...field} placeholder="Enter last name" className="bg-background text-foreground" />
+                      <Input
+                        {...field}
+                        placeholder="Enter last name"
+                        className="bg-background text-foreground"
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -170,41 +275,53 @@ export const MemberForm = ({
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <FormField
-                name="email"
                 control={form.control}
+                name="email"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="text-foreground">Email</FormLabel>
                     <FormControl>
-                      <Input {...field} type="email" placeholder="Enter email address" className="bg-background text-foreground" />
+                      <Input
+                        {...field}
+                        type="email"
+                        placeholder="Enter email address"
+                        className="bg-background text-foreground"
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-
               <FormField
-                name="mobile_number"
                 control={form.control}
+                name="mobile_number"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-foreground">Mobile Number</FormLabel>
+                    <FormLabel className="text-foreground">
+                      Mobile Number
+                    </FormLabel>
                     <FormControl>
-                      <Input {...field} placeholder="Enter mobile number" className="bg-background text-foreground" />
+                      <Input
+                        {...field}
+                        placeholder="Enter mobile number"
+                        className="bg-background text-foreground"
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-
               <FormField
-                name="gender"
                 control={form.control}
+                name="gender"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="text-foreground">Gender</FormLabel>
                     <FormControl>
-                      <Select onValueChange={field.onChange} value={field.value}>
+                      <Select
+                        onValueChange={field.onChange}
+                        value={field.value}
+                      >
                         <SelectTrigger className="bg-background text-foreground">
                           <SelectValue placeholder="Select gender" />
                         </SelectTrigger>
@@ -219,16 +336,149 @@ export const MemberForm = ({
                   </FormItem>
                 )}
               />
-
               <FormField
-                name="profile_photo"
                 control={form.control}
+                name="birthday"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-foreground">Profile Photo URL</FormLabel>
+                    <FormLabel className="text-foreground">Birthday</FormLabel>
                     <FormControl>
-                      <Input {...field} placeholder="Enter profile photo URL" className="bg-background text-foreground" />
+                      <Input
+                        {...field}
+                        type="datetime-local"
+                        placeholder="Select birthday"
+                        className="bg-background text-foreground"
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          if (value) {
+                            field.onChange(new Date(value).toISOString());
+                          } else {
+                            field.onChange(undefined);
+                          }
+                        }}
+                        value={field.value ? field.value.slice(0, 16) : ""}
+                      />
                     </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="profile_photo"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-foreground">
+                      Profile Photo
+                    </FormLabel>
+                    <FormControl>
+                      <div>
+                        <UploadDropzone<OurFileRouter, "profilePhoto">
+                          endpoint="profilePhoto"
+                          config={{ mode: "manual" }}
+                          onDrop={(acceptedFiles) => {
+                            if (acceptedFiles.length > 0) {
+                              setSelectedFile(acceptedFiles[0]);
+                            } else {
+                              setSelectedFile(null);
+                            }
+                          }}
+                          onClientUploadComplete={(res) => {
+                            if (res && res.length > 0) {
+                              const fileUrl = res[0].url || res[0].fileUrl || "";
+                              form.setValue("profile_photo", fileUrl);
+                              setIsUploading(false);
+                              setUploadProgress(100);
+                              toast.success("Profile photo uploaded successfully!");
+                            }
+                          }}
+                          onUploadError={(error) => {
+                            setIsUploading(false);
+                            setUploadProgress(0);
+                            setSelectedFile(null);
+                            toast.error(`Upload failed: ${error.message}`);
+                          }}
+                          onUploadProgress={(progress) => {
+                            setUploadProgress(progress);
+                          }}
+                          content={{
+                            allowedContent: "PNG, JPG, JPEG, or GIF (Max 4MB)",
+                          }}
+                        />
+                        {selectedFile && !isUploading && (
+                          <div className="mt-4 p-3 bg-muted rounded flex items-center gap-3">
+                            <Paperclip className="h-4 w-4 text-muted-foreground" />
+                            <div className="flex-1">
+                              <p className="text-sm font-medium">
+                                Selected: {selectedFile.name}
+                              </p>
+                              <p className="text-xs text-muted-foreground">
+                                File ready to upload
+                              </p>
+                            </div>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              type="button"
+                              onClick={() => {
+                                setSelectedFile(null);
+                                form.setValue("profile_photo", "");
+                                toast.info("Profile photo removed");
+                              }}
+                            >
+                              Remove
+                            </Button>
+                          </div>
+                        )}
+                        {isUploading && (
+                          <div className="mt-4">
+                            <div className="flex items-center gap-2">
+                              <Loader2 className="h-4 w-4 animate-spin" />
+                              <span>Uploading... {uploadProgress}%</span>
+                            </div>
+                            <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
+                              <div
+                                className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                                style={{ width: `${uploadProgress}%` }}
+                              ></div>
+                            </div>
+                          </div>
+                        )}
+                        {form.watch("profile_photo") && !isUploading && (
+                          <div className="mt-4 p-3 bg-muted rounded flex items-center gap-3">
+                            <Paperclip className="h-4 w-4 text-muted-foreground" />
+                            <div className="flex-1">
+                              <p className="text-sm font-medium">
+                                Uploaded successfully!
+                              </p>
+                            </div>
+                            <img
+                              src={form.watch("profile_photo")}
+                              alt="Uploaded preview"
+                              className="w-16 h-16 object-cover rounded"
+                              onError={() => {
+                                toast.error("Failed to load image preview");
+                              }}
+                            />
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              type="button"
+                              onClick={() => {
+                                form.setValue("profile_photo", "");
+                                setSelectedFile(null);
+                                toast.info("Profile photo removed");
+                              }}
+                            >
+                              Remove
+                            </Button>
+                          </div>
+                        )}
+                      </div>
+                    </FormControl>
+                    <FormDescription>
+                      Upload a profile photo (PNG, JPG, JPEG, or GIF, max 4MB)
+                    </FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -242,84 +492,107 @@ export const MemberForm = ({
             </h3>
             <div className="grid grid-cols-1 gap-4">
               <FormField
-                name="address"
                 control={form.control}
+                name="address"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="text-foreground">Address</FormLabel>
                     <FormControl>
-                      <Input {...field} placeholder="Enter full address" className="bg-background text-foreground" />
+                      <Input
+                        {...field}
+                        placeholder="Enter full address"
+                        className="bg-background text-foreground"
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormField
+                  control={form.control}
                   name="address_line_1"
-                  control={form.control}
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-foreground">Address Line 1</FormLabel>
+                      <FormLabel className="text-foreground">
+                        Address Line 1
+                      </FormLabel>
                       <FormControl>
-                        <Input {...field} placeholder="Enter address line 1" className="bg-background text-foreground" />
+                        <Input
+                          {...field}
+                          placeholder="Enter address line 1"
+                          className="bg-background text-foreground"
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-
                 <FormField
+                  control={form.control}
                   name="address_line_2"
-                  control={form.control}
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-foreground">Address Line 2</FormLabel>
+                      <FormLabel className="text-foreground">
+                        Address Line 2
+                      </FormLabel>
                       <FormControl>
-                        <Input {...field} placeholder="Enter address line 2" className="bg-background text-foreground" />
+                        <Input
+                          {...field}
+                          placeholder="Enter address line 2"
+                          className="bg-background text-foreground"
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-
                 <FormField
-                  name="city"
                   control={form.control}
+                  name="city"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="text-foreground">City</FormLabel>
                       <FormControl>
-                        <Input {...field} placeholder="Enter city" className="bg-background text-foreground" />
+                        <Input
+                          {...field}
+                          placeholder="Enter city"
+                          className="bg-background text-foreground"
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-
                 <FormField
-                  name="state"
                   control={form.control}
+                  name="state"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="text-foreground">State</FormLabel>
                       <FormControl>
-                        <Input {...field} placeholder="Enter state" className="bg-background text-foreground" />
+                        <Input
+                          {...field}
+                          placeholder="Enter state"
+                          className="bg-background text-foreground"
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-
                 <FormField
-                  name="zip_code"
                   control={form.control}
+                  name="zip_code"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="text-foreground">Zip Code</FormLabel>
                       <FormControl>
-                        <Input {...field} placeholder="Enter zip code" className="bg-background text-foreground" />
+                        <Input
+                          {...field}
+                          placeholder="Enter zip code"
+                          className="bg-background text-foreground"
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -335,47 +608,15 @@ export const MemberForm = ({
             </h3>
             <div className="grid grid-cols-1 gap-4">
               <FormField
-                name="qr_code"
                 control={form.control}
+                name="qr_code"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="text-foreground">QR Code</FormLabel>
                     <FormControl>
-                      <Input {...field} placeholder="Enter QR code" className="bg-background text-foreground" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                name="member_tags"
-                control={form.control}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-foreground">Member Tags</FormLabel>
-                    <FormControl>
                       <Input
                         {...field}
-                        placeholder='Enter tags as JSON array (e.g., ["tag1", "tag2"])'
-                        className="bg-background text-foreground"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                name="additional_info"
-                control={form.control}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-foreground">Additional Information</FormLabel>
-                    <FormControl>
-                      <Input
-                        {...field}
-                        placeholder='Enter additional info as JSON (e.g., {"key": "value"})'
+                        placeholder="Enter QR code"
                         className="bg-background text-foreground"
                       />
                     </FormControl>
@@ -388,7 +629,11 @@ export const MemberForm = ({
 
           <div className="flex justify-end space-x-3 pt-6 border-t border-border">
             {onCancel && (
-              <Button type="button" variant="outline" onClick={onCancel}>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={onCancel}
+              >
                 Cancel
               </Button>
             )}

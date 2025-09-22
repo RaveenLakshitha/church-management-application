@@ -17,20 +17,20 @@ export default async function Layout({ children }: Props) {
   const defaultOpen = cookieStore.get('sidebar_state')?.value === 'true';
 
   // Get current user
-  // const user = await getCurrentUser();
+  const user = await getCurrentUser();
 
-  // if (!user) {
-  //   redirect('/login');
-  //   return null;
-  // }
+  if (!user) {
+    redirect('/login');
+    return null;
+  }
 
-  // // Check setup status
-  // const userProfile = await prisma.user.findUnique({
-  //   where: { email: user.email },
-  //   include: { church: true },
-  // });
+  // Check setup status
+  const userProfile = await prisma.user.findUnique({
+    where: { email: user.email },
+    include: { church: true },
+  });
 
-  // // Show setup form if no church is linked
+  // Show setup form if no church is linked
   // if (!userProfile?.church) {
   //   return (
   //     <div className="min-h-screen bg-muted">

@@ -28,9 +28,9 @@ model User {
   church        Church?        @relation(fields: [churchId], references: [id], onDelete: Cascade)
   permissions   Permissions[]
   notifications Notification[]
-  sessions       Session[]
+  sessions      Session[]
   accounts      Account[]
-  
+
   @@index([churchId])
   @@map("user")
 }
@@ -42,11 +42,10 @@ model Permissions {
   subAccountId  String
   subAccount    SubAccount  @relation(fields: [subAccountId], references: [id], onDelete: Cascade)
   access        Boolean
-  
+
   @@index([subAccountId])
   @@index([email])
 }
-
 
 model Session {
   id        String   @id
@@ -117,7 +116,7 @@ model Church {
   notifications       Notification[]
   subscription        Subscription?
   addOns              AddOns[]
-  
+
   @@map("church")
 }
 
@@ -140,10 +139,8 @@ model SubAccount {
   church            Church                  @relation(fields: [churchId], references: [id], onDelete: Cascade)
   sidebarOptions    SubAccountSidebarOption[]
   permissions       Permissions[]
-  // media             Media[]
-  // contacts          Contact[]
   notifications     Notification[]
-  
+
   @@index([churchId])
 }
 
@@ -151,12 +148,11 @@ model ChurchSidebarOption {
   id        String     @id @default(uuid())
   name      String     @default("Menu")
   link      String     @default("#")
-  //icon      Icon       @default(info)
   churchId  String
   church    Church?    @relation(fields: [churchId], references: [id], onDelete: Cascade)
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
-  
+
   @@index([churchId])
   @@map("church_sidebar_option")
 }
@@ -165,12 +161,11 @@ model SubAccountSidebarOption {
   id            String         @id @default(uuid())
   name          String         @default("Menu")
   link          String         @default("#")
-  //icon          Icon           @default(info)
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
   subAccount    SubAccount?    @relation(fields: [subAccountId], references: [id], onDelete: Cascade)
   subAccountId  String?
-  
+
   @@index([subAccountId])
 }
 
@@ -187,7 +182,7 @@ model Invitation {
   church    Church           @relation(fields: [churchId], references: [id], onDelete: Cascade)
   status    InvitationStatus @default(PENDING)
   role      Role             @default(SUBACCOUNT_USER)
-  
+
   @@index([churchId])
   @@map("invitation")
 }
@@ -203,7 +198,7 @@ model Notification {
   subAccount    SubAccount?   @relation(fields: [subAccountId], references: [id], onDelete: Cascade)
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
-  
+
   @@index([churchId])
   @@index([subAccountId])
   @@index([userId])
@@ -228,7 +223,7 @@ model Subscription {
   subscriptionId   String     @unique
   churchId         String?    @unique
   church           Church?    @relation(fields: [churchId], references: [id])
-  
+
   @@index([customerId])
   @@map("subscription")
 }
@@ -242,7 +237,7 @@ model AddOns {
   priceId   String     @unique
   churchId  String?
   church    Church?    @relation(fields: [churchId], references: [id])
-  
+
   @@index([churchId])
   @@map("add_ons")
 }
@@ -265,9 +260,7 @@ model Member {
   zip_code        String?
   membership_status String  @default("active")
   profile_photo   String?
-  member_tags     Json?
   qr_code         String?
-  additional_info Json?
   created_at      DateTime  @default(now())
   updated_at      DateTime  @updatedAt
 

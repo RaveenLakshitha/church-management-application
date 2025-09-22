@@ -1,8 +1,9 @@
+// app/trpc/routers/setup.ts
 import { z } from 'zod';
 import { TRPCError } from '@trpc/server';
-import {  createTRPCRouter, protectedProcedure } from '@/trpc/init';
-import { Role } from '@/generated/prisma';
+import { createTRPCRouter, protectedProcedure } from '@/trpc/init';
 import { uploadFile } from '@/lib/file-upload';
+import { Role } from '@/generated/prisma';
 
 export const setupRouter = createTRPCRouter({
   createChurchProfile: protectedProcedure
@@ -53,27 +54,27 @@ export const setupRouter = createTRPCRouter({
           country: input.country,
           goal: input.goal,
           users: {
-            connect: { email: ctx.user.email },
+            connect: { email: ctx.auth.user.email },
           },
         },
       });
 
       // Link church to user
       await ctx.prisma.user.update({
-        where: { email: ctx.user.email },
+        where: { email: ctx.auth.user.email }, // Use ctx.auth.user.email
         data: { churchId: church.id },
       });
 
       return { church };
     }),
 
-    updateUserProfile: protectedProcedure
+  updateUserProfile: protectedProcedure
     .input(
       z.object({
         name: z.string().min(1, 'Name is required'),
         email: z.string().email('Invalid email address').min(1, 'Email is required'),
         image: z.any().optional(),
-        role: z.enum([Role.SUBACCOUNT_USER, Role.CHURCH_OWNER]).default(Role.SUBACCOUNT_USER),
+        role: z.enum([Role.SUBACCOUNT_USER, Role.CHURCH_ADMIN]).default(Role.SUBACCOUNT_USER), // Updated to match schema
         missionStatement: z.string().min(1, 'Mission statement is required'),
       })
     )
@@ -91,24 +92,31 @@ export const setupRouter = createTRPCRouter({
         }
       }
 
-      const user = await ctx.auth.user.upsert({
-        where: { email: ctx.auth.user.email }, // Use authenticated user's email
+      const user = await ctx.prisma.user.upsert({
+        where: { email: ctx.auth.user.email }, // Use ctx.auth.user.email
         update: {
           name: input.name,
           image: imagePath,
-          role: input.role,
-          missionStatement: input.missionStatement,
+          role: input.role
         },
         create: {
-          id: ctx.user.id,
-          email: input.email,
+          id: ctx.auth.user.id,
+          email: ctx.auth.user.email,
           name: input.name,
           image: imagePath,
-          role: input.role,
-          missionStatement: input.missionStatement,
+          role: input.role
         },
       });
 
       return { user };
     }),
+
+  getUserSetupStatus: protectedProcedure.query(async ({ ctx }) => {
+    const user = await ctx.prisma.user.findUnique({
+      where: { email: ctx.auth.user.email },
+      include: { church: true },
+    });
+
+    return { isSetupComplete: !!user?.church };
+  }),
 });

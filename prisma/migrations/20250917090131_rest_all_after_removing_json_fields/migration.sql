@@ -11,7 +11,7 @@ CREATE TYPE "public"."Plan" AS ENUM ('price_10MhuQIld5Bk5htqogZXP2e', 'price_10M
 CREATE TABLE "public"."user" (
     "id" TEXT NOT NULL,
     "name" TEXT NOT NULL,
-    "image" TEXT NOT NULL,
+    "image" TEXT,
     "email" TEXT NOT NULL,
     "emailVerified" BOOLEAN NOT NULL DEFAULT false,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -217,9 +217,7 @@ CREATE TABLE "public"."Member" (
     "zip_code" TEXT,
     "membership_status" TEXT NOT NULL DEFAULT 'active',
     "profile_photo" TEXT,
-    "member_tags" JSONB,
     "qr_code" TEXT,
-    "additional_info" JSONB,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,
 

@@ -8,7 +8,6 @@ import CardMembershipIcon from '@mui/icons-material/CardMembership';
 import HomeIcon from '@mui/icons-material/Home';
 import GroupIcon from '@mui/icons-material/Group';
 import ContactsIcon from '@mui/icons-material/Contacts';
-import DescriptionIcon from '@mui/icons-material/Description';
 import ChurchIcon from '@mui/icons-material/Church';
 import MessageIcon from '@mui/icons-material/Message';
 import MonetizationOnIcon from '@mui/icons-material/MonetizationOn';
@@ -20,10 +19,6 @@ import MoneyOffIcon from '@mui/icons-material/MoneyOff';
 import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 import AssessmentIcon from '@mui/icons-material/Assessment';
 import BackupIcon from '@mui/icons-material/Backup';
-import ExtensionIcon from '@mui/icons-material/Extension';
-import EventIcon from '@mui/icons-material/Event';
-import KitchenIcon from '@mui/icons-material/Kitchen';
-import RestaurantMenuIcon from '@mui/icons-material/RestaurantMenu';
 import SettingsIcon from '@mui/icons-material/Settings';
 
 import {
@@ -297,36 +292,6 @@ const firstSection = [
       { title: "Activity Log", url: "/reports/activity-log" },
       { title: "Message History", url: "/reports/message-histories" },
     ],
-  },
-  {
-    icon: BackupIcon,
-    label: "Backup",
-    href: "/backup",
-    items: [],
-  },
-  {
-    icon: ExtensionIcon,
-    label: "Modules",
-    href: "/manage-modules",
-    items: [],
-  },
-  {
-    icon: EventIcon,
-    label: "Bookings",
-    href: "/bookings",
-    items: [],
-  },
-  {
-    icon: KitchenIcon,
-    label: "Kitchen",
-    href: "/modules/kitchen",
-    items: [],
-  },
-  {
-    icon: RestaurantMenuIcon,
-    label: "Orders",
-    href: "/modules/orders",
-    items: [],
   },
   {
     icon: SettingsIcon,

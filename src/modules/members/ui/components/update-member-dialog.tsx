@@ -4,25 +4,26 @@ import { z } from "zod";
 import { memberCreateSchema } from "../../schemas";
 import { ResponsiveDrawer } from "@/components/responsive-sheet";
 import { MemberForm } from "./new-member-form";
+import { MemberGetOne } from "../../types";
 
-interface NewMemberDialogProps {
+interface UpdateMemberDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  initialValues: MemberGetOne;
 }
 
-type NewMemberForm = z.infer<typeof memberCreateSchema>;
-
-export const NewMemberDialog = ({ open, onOpenChange }: NewMemberDialogProps) => {
+export const UpdateMemberDialog = ({ open, onOpenChange, initialValues }: UpdateMemberDialogProps) => {
   return (
     <ResponsiveDrawer
-      title="Create New Member"
-      description="Fill in the details to create a new member"
+      title="Edit Member"
+      description="Edit the Member Details"
       open={open}
       onOpenChange={onOpenChange}
     >
       <MemberForm
         onSuccess={() => onOpenChange(false)}
         onCancel={() => onOpenChange(false)}
+        initialValues={initialValues}
       />
     </ResponsiveDrawer>
   );
